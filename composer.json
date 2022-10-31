@@ -1,9 +1,13 @@
 {
-    "name": "bumbummen99/shoppingcart",
+    "name": "cybrtck/shoppingcart",
     "description": "Laravel Shoppingcart",
     "keywords": ["laravel", "shoppingcart"],
     "license": "MIT",
     "authors": [
+        {
+            "name": "Gary Hanks",
+            "email": "gary@nandeska.com"
+        },
         {
             "name": "Rob Gloudemans",
             "email": "info@robgloudemans.nl",

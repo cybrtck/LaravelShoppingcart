@@ -47,6 +47,18 @@ trait CanBeBought
     }
 
     /**
+     * Get the fees of the Buyable item.
+     *
+     * @return float
+     */
+    public function getBuyableFees($options = null)
+    {
+        if (($fees = $this->getAttribute('fees'))) {
+            return $fees;
+        }
+    }
+
+    /**
      * Get the weight of the Buyable item.
      *
      * @return float

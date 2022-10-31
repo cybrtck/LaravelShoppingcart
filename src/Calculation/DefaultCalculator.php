@@ -14,10 +14,14 @@ class DefaultCalculator implements Calculator
         switch ($attribute) {
             case 'discount':
                 return $cartItem->price * ($cartItem->getDiscountRate() / 100);
+            case 'fees':
+                return $cartItem->fees;
+            case 'feesTotal':
+                return round($cartItem->fees * $cartItem->qty, $decimals);
             case 'tax':
-                return round($cartItem->priceTarget * ($cartItem->taxRate / 100), $decimals);
+                return round(($cartItem->priceTarget + $cartItem->feesTotal) * ($cartItem->taxRate / 100), $decimals);
             case 'priceTax':
-                return round($cartItem->priceTarget + $cartItem->tax, $decimals);
+                return round($cartItem->priceTarget + $cartItem->feesTotal + $cartItem->tax, $decimals);
             case 'discountTotal':
                 return round($cartItem->discount * $cartItem->qty, $decimals);
             case 'priceTotal':
@@ -27,9 +31,9 @@ class DefaultCalculator implements Calculator
             case 'priceTarget':
                 return round(($cartItem->priceTotal - $cartItem->discountTotal) / $cartItem->qty, $decimals);
             case 'taxTotal':
-                return round($cartItem->subtotal * ($cartItem->taxRate / 100), $decimals);
+                return round(($cartItem->subtotal + $cartItem->feesTotal) * ($cartItem->taxRate / 100), $decimals);
             case 'total':
-                return round($cartItem->subtotal + $cartItem->taxTotal, $decimals);
+                return round($cartItem->subtotal + $cartItem->feesTotal + $cartItem->taxTotal, $decimals);
             default:
                 return;
         }
