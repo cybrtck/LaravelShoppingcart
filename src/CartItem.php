@@ -14,6 +14,7 @@ use ReflectionClass;
 /**
  * @property-read mixed discount
  * @property-read float discountTotal
+ * @property-read float fees
  * @property-read float priceTarget
  * @property-read float priceNet
  * @property-read float priceTotal
@@ -59,6 +60,13 @@ class CartItem implements Arrayable, Jsonable
      * @var float
      */
     public $price;
+
+    /**
+     * The fees for this cart item.
+     * 
+     * @var float
+     */
+    public $fees;
 
     /**
      * The weight of the product.
@@ -111,7 +119,7 @@ class CartItem implements Arrayable, Jsonable
      * @param float      $weight
      * @param array      $options
      */
-    public function __construct($id, $name, $price, $weight = 0, array $options = [])
+    public function __construct($id, $name, $price, $weight = 0, array $options = [], $fees = 0)
     {
         if (empty($id)) {
             throw new \InvalidArgumentException('Please supply a valid identifier.');
@@ -125,10 +133,14 @@ class CartItem implements Arrayable, Jsonable
         if (strlen($weight) < 0 || !is_numeric($weight)) {
             throw new \InvalidArgumentException('Please supply a valid weight.');
         }
+        if (strlen($fees) < 0 || !is_numeric($fees)) {
+            throw new \InvalidArgumentException('Please supply valid fees.');
+        }
 
         $this->id = $id;
         $this->name = $name;
         $this->price = floatval($price);
+        $this->fees = floatval($fees);
         $this->weight = floatval($weight);
         $this->options = new CartItemOptions($options);
         $this->rowId = $this->generateRowId($id, $options);
@@ -160,6 +172,20 @@ class CartItem implements Arrayable, Jsonable
     public function price($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Returns the formatted fees.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     *
+     * @return string
+     */
+    public function fees($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        return $this->numberFormat($this->fees, $decimals, $decimalPoint, $thousandSeperator);
     }
 
     /**
@@ -288,6 +314,20 @@ class CartItem implements Arrayable, Jsonable
     public function priceTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         return $this->numberFormat($this->priceTotal, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Returns the formatted total fees for this cart item.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     *
+     * @return string
+     */
+    public function feesTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        return $this->numberFormat($this->feesTotal, $decimals, $decimalPoint, $thousandSeperator);
     }
 
     /**
@@ -440,7 +480,7 @@ class CartItem implements Arrayable, Jsonable
      */
     public static function fromBuyable(Buyable $item, array $options = [])
     {
-        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $item->getBuyableWeight($options), $options);
+        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $item->getBuyableWeight($options), $options, $item->getBuyableFees($options));
     }
 
     /**
@@ -454,7 +494,7 @@ class CartItem implements Arrayable, Jsonable
     {
         $options = Arr::get($attributes, 'options', []);
 
-        return new self($attributes['id'], $attributes['name'], $attributes['price'], $attributes['weight'], $options);
+        return new self($attributes['id'], $attributes['name'], $attributes['price'], $attributes['weight'], $options, $attributes['fees']);
     }
 
     /**
@@ -467,9 +507,9 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    public static function fromAttributes($id, $name, $price, $weight, array $options = [])
+    public static function fromAttributes($id, $name, $price, $weight, array $options = [], $fees = 0)
     {
-        return new self($id, $name, $price, $weight, $options);
+        return new self($id, $name, $price, $weight, $options, $fees);
     }
 
     /**
@@ -500,6 +540,7 @@ class CartItem implements Arrayable, Jsonable
             'name'     => $this->name,
             'qty'      => $this->qty,
             'price'    => $this->price,
+            'fees'     => $this->fees, 
             'weight'   => $this->weight,
             'options'  => is_object($this->options)
                 ? $this->options->toArray()

@@ -26,6 +26,13 @@ interface Buyable
     public function getBuyablePrice($options = null);
 
     /**
+     * Get the price of the Buyable item.
+     *
+     * @return float
+     */
+    public function getBuyableFees($options = null);
+
+    /**
      * Get the weight of the Buyable item.
      *
      * @return float

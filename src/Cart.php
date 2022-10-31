@@ -128,7 +128,7 @@ class Cart
      *
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    public function add($id, $name = null, $qty = null, $price = null, $weight = 0, array $options = [])
+    public function add($id, $name = null, $qty = null, $price = null, $weight = 0, array $options = [], $fees = 0)
     {
         if ($this->isMulti($id)) {
             return array_map(function ($item) {
@@ -136,7 +136,7 @@ class Cart
             }, $id);
         }
 
-        $cartItem = $this->createCartItem($id, $name, $qty, $price, $weight, $options);
+        $cartItem = $this->createCartItem($id, $name, $qty, $price, $weight, $options, $fees);
 
         return $this->addCartItem($cartItem);
     }
@@ -505,6 +505,32 @@ class Cart
         return $this->numberFormat($this->weightFloat(), $decimals, $decimalPoint, $thousandSeperator);
     }
 
+    /**
+     * Get the total fees of the items in the cart.
+     *
+     * @return float
+     */
+    public function feesFloat()
+    {
+        return $this->getContent()->reduce(function ($total, CartItem $cartItem) {
+            return $total + ($cartItem->qty * $cartItem->fees);
+        }, 0);
+    }
+
+    /**
+     * Get the total fees of the items in the cart.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     *
+     * @return string
+     */
+    public function fees($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        return $this->numberFormat($this->feesFloat(), $decimals, $decimalPoint, $thousandSeperator);
+    }
+    
     /**
      * Search the cart content for a cart item matching the given search closure.
      *
